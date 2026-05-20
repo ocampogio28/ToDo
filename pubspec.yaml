@@ -1,0 +1,35 @@
+name: todo_desktop
+description: "A clean desktop todo dashboard built with Flutter."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  table_calendar: ^3.1.2 # For your dashboard calendar sync
+  desktop_window: ^0.4.0 # For your window resolution controls
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  msix: ^3.16.1 # Added here directly so you don't have to run pub add
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/bg.jpg
+
+# 🚀 STANDALONE WINDOWS INSTALLER CONFIGURATION
+msix_config:
+  display_name: Desktop ToDo
+  publisher_display_name: Gio Developer
+  title: Desktop ToDo Dashboard
+  identity_name: com.gio.tododesktop
+  publisher: CN=GioDeveloper, O=Gio, C=PH
+  version: 1.0.0.0
+  architecture: x64
+  start_menu_shortcut: true

@@ -1,0 +1,10 @@
+# Flutter/Dart specific
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.vscode/
+.idea/
+*.exe
+*.dll
