@@ -4,6 +4,7 @@ import 'widgets/todo_sidebar.dart';
 import 'widgets/tab_calendar.dart';
 import 'widgets/tab_tasks.dart';
 import 'widgets/tab_reminders.dart';
+import 'palette.dart'; // Ensure this points correctly to your palette implementation
 
 class TodoView extends StatelessWidget {
   final TodoController controller;
@@ -12,49 +13,55 @@ class TodoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // --- COZY CHECKERED CANVAS COLOR PALETTE ---
-    const Color paperBackground = Color(0xFFF9F6EF);
-    final Color gridLineColor = const Color(0xFF2B77A4).withOpacity(0.2);
-
     return ListenableBuilder(
       listenable: controller,
       builder: (context, child) {
         final activeIndex = controller.currentTabIndex;
 
-        return Scaffold(
-          backgroundColor: paperBackground,
-          body: Row(
-            children: [
-              // Left Column Nav
-              TodoSidebar(
-                activeIndex: activeIndex,
-                onTabSelected: controller.changeTab,
-              ),
+        // 🛠️ THE FIX: Wrap the view inside the reactive palette listener
+        return ValueListenableBuilder<PaletteInstance>(
+          valueListenable: ThemeManager.activePalette,
+          builder: (context, palette, child) {
+            // Extract dynamic theme values directly from the active palette
+            final Color paperBackground = palette.sandstoneCream;
+            final Color gridLineColor =
+                palette.blueprintBlue.withValues(alpha: 0.12);
 
-              // Right Content Viewport with Checkered Background
-              Expanded(
-                child: Stack(
-                  children: [
-                    // The Full-Surface Checkered/Grid Canvas Layer
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: CheckeredBackgroundPainter(
-                          gridColor: gridLineColor,
-                          gridSize: 24.0,
+            return Scaffold(
+              backgroundColor: paperBackground, // Dynamic canvas update!
+              body: Row(
+                children: [
+                  // Left Column Nav
+                  TodoSidebar(
+                    activeIndex: activeIndex,
+                    onTabSelected: controller.changeTab,
+                  ),
+
+                  // Right Content Viewport with Reactive Checkered Background
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        // The Full-Surface Checkered/Grid Canvas Layer
+                        Positioned.fill(
+                          child: AnimatedBaseCanvas(
+                            gridColor: gridLineColor,
+                            backgroundColor: paperBackground,
+                            gridSize: 24.0,
+                          ),
                         ),
-                      ),
-                    ),
 
-                    // Active Viewport UI Content Layer
-                    Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: _buildActiveTab(activeIndex),
+                        // Active Viewport UI Content Layer
+                        Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: _buildActiveTab(activeIndex),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -71,6 +78,35 @@ class TodoView extends StatelessWidget {
       default:
         return TabCalendar(controller: controller);
     }
+  }
+}
+
+// --- ANIMATED WRAPPER FOR SMOOTH GRAPHICS TRANSITIONS ---
+class AnimatedBaseCanvas extends StatelessWidget {
+  final Color gridColor;
+  final Color backgroundColor;
+  final double gridSize;
+
+  const AnimatedBaseCanvas({
+    super.key,
+    required this.gridColor,
+    required this.backgroundColor,
+    required this.gridSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Implicit animations smooth out the background shifts over 200ms
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      color: backgroundColor,
+      child: CustomPaint(
+        painter: CheckeredBackgroundPainter(
+          gridColor: gridColor,
+          gridSize: gridSize,
+        ),
+      ),
+    );
   }
 }
 

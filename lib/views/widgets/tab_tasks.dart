@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../../controllers/todo_controller.dart';
 import '../../models/task_model.dart';
+import 'package:todo_desktop/views/palette.dart';
 
 class TabTasks extends StatefulWidget {
   final TodoController controller;
@@ -13,9 +15,17 @@ class TabTasks extends StatefulWidget {
 }
 
 class _TabTasksState extends State<TabTasks> {
-  // --- COLOR PALETTE ---
-  final Color blueprintBlue = const Color(0xFF2B77A4);
-  final Color sandstoneCream = const Color(0xFFF4F1EB);
+  // --- AUDIO PIPELINE PLAYER ---
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  void _playSFX(String fileName) async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource(fileName));
+    } catch (e) {
+      debugPrint("View sound effect error ($fileName): $e");
+    }
+  }
 
   // --- MODAL: TASK CREATION/EDITING ---
   void _showTaskModal(BuildContext context, {int? index, TodoItem? item}) {
@@ -31,12 +41,13 @@ class _TabTasksState extends State<TabTasks> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return AlertDialog(
-              backgroundColor: sandstoneCream,
+              backgroundColor: Palette.sandstoneCream,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
               title: Text(index == null ? 'NEW TASK' : 'MODIFY TASKS',
                   style: TextStyle(
-                      color: blueprintBlue, fontWeight: FontWeight.w900)),
+                      color: Palette.blueprintBlue,
+                      fontWeight: FontWeight.w900)),
               content: SizedBox(
                 width: 450,
                 child: Column(
@@ -44,48 +55,57 @@ class _TabTasksState extends State<TabTasks> {
                   children: [
                     TextField(
                       controller: titleController,
-                      style: TextStyle(color: blueprintBlue),
+                      style: TextStyle(color: Palette.blueprintBlue),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: Palette.pureWhite,
                         labelText: 'TASK TITLE',
                         labelStyle: TextStyle(
-                            color: blueprintBlue.withValues(alpha: 0.6)),
+                            color:
+                                Palette.blueprintBlue.withValues(alpha: 0.6)),
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(
-                                color: blueprintBlue.withValues(alpha: 0.3))),
+                                color: Palette.blueprintBlue
+                                    .withValues(alpha: 0.3))),
                         focusedBorder: OutlineInputBorder(
+                            // 🎯 FIXED: Removed 'const' boundary from block
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueprintBlue)),
+                            borderSide:
+                                BorderSide(color: Palette.blueprintBlue)),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: detailsController,
-                      style: TextStyle(color: blueprintBlue),
+                      style: TextStyle(color: Palette.blueprintBlue),
                       minLines: 3,
                       maxLines: 5,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: Palette.pureWhite,
                         labelText: 'DETAILS',
                         labelStyle: TextStyle(
-                            color: blueprintBlue.withValues(alpha: 0.6)),
+                            color:
+                                Palette.blueprintBlue.withValues(alpha: 0.6)),
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide(
-                                color: blueprintBlue.withValues(alpha: 0.3))),
+                                color: Palette.blueprintBlue
+                                    .withValues(alpha: 0.3))),
                         focusedBorder: OutlineInputBorder(
+                            // 🎯 FIXED: Removed 'const' boundary from block
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueprintBlue)),
+                            borderSide:
+                                BorderSide(color: Palette.blueprintBlue)),
                       ),
                     ),
                     const SizedBox(height: 16),
                     ListTile(
                       title: Text(DateFormat('yyyy-MM-dd').format(selectedDate),
-                          style: TextStyle(color: blueprintBlue)),
-                      leading: Icon(Icons.calendar_today, color: blueprintBlue),
+                          style: TextStyle(color: Palette.blueprintBlue)),
+                      leading: Icon(Icons.calendar_today,
+                          color: Palette.blueprintBlue),
                       onTap: () async {
                         final picked = await showDatePicker(
                           context: context,
@@ -106,13 +126,16 @@ class _TabTasksState extends State<TabTasks> {
                     onPressed: () => Navigator.pop(dialogContext),
                     child: Text('CANCEL',
                         style: TextStyle(
-                            color: blueprintBlue.withValues(alpha: 0.5)))),
+                            color:
+                                Palette.blueprintBlue.withValues(alpha: 0.5)))),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: blueprintBlue,
-                      foregroundColor: Colors.white),
+                      backgroundColor: Palette.blueprintBlue,
+                      foregroundColor: Palette.pureWhite),
                   onPressed: () {
                     if (titleController.text.isNotEmpty) {
+                      _playSFX('add.mp3');
+
                       if (index == null) {
                         widget.controller.addTask(titleController.text,
                             details: detailsController.text,
@@ -141,24 +164,27 @@ class _TabTasksState extends State<TabTasks> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: sandstoneCream,
+        backgroundColor: Palette.sandstoneCream,
         title: Text("DELETE ENTRY",
-            style:
-                TextStyle(color: blueprintBlue, fontWeight: FontWeight.w900)),
+            style: TextStyle(
+                color: Palette.blueprintBlue, fontWeight: FontWeight.w900)),
         content: Text("Are you sure you want to delete this task?",
-            style: TextStyle(color: blueprintBlue.withValues(alpha: 0.7))),
+            style:
+                TextStyle(color: Palette.blueprintBlue.withValues(alpha: 0.7))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text("CANCEL",
-                style: TextStyle(color: blueprintBlue.withValues(alpha: 0.5))),
+                style: TextStyle(
+                    color: Palette.blueprintBlue.withValues(alpha: 0.5))),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.white,
+              foregroundColor: Palette.pureWhite,
             ),
             onPressed: () {
+              _playSFX('delete.mp3');
               widget.controller.deleteTask(index);
               Navigator.pop(ctx);
             },
@@ -167,6 +193,12 @@ class _TabTasksState extends State<TabTasks> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
   @override
@@ -187,13 +219,14 @@ class _TabTasksState extends State<TabTasks> {
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
-                          color: blueprintBlue)),
+                          color: Palette.blueprintBlue)),
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: blueprintBlue)),
+                        side: BorderSide(color: Palette.blueprintBlue)),
                     onPressed: () => _showTaskModal(context),
-                    icon: Icon(Icons.add, color: blueprintBlue),
-                    label: Text('NEW', style: TextStyle(color: blueprintBlue)),
+                    icon: Icon(Icons.add, color: Palette.blueprintBlue),
+                    label: Text('NEW',
+                        style: TextStyle(color: Palette.blueprintBlue)),
                   ),
                 ],
               ),
@@ -203,7 +236,8 @@ class _TabTasksState extends State<TabTasks> {
                     ? Center(
                         child: Text('[ NO ENTRIES RECORDED ]',
                             style: TextStyle(
-                                color: blueprintBlue.withValues(alpha: 0.4))))
+                                color: Palette.blueprintBlue
+                                    .withValues(alpha: 0.4))))
                     : ListView.builder(
                         itemCount: taskList.length,
                         itemBuilder: (context, index) {
@@ -212,15 +246,14 @@ class _TabTasksState extends State<TabTasks> {
                             margin: const EdgeInsets.symmetric(
                                 vertical: 6, horizontal: 2),
                             decoration: BoxDecoration(
-                              // 🔥 YOUR SPECIFIED DESIGN SYSTEM FRAME PROPERTIES APPLIED HERE 🔥
-                              color: sandstoneCream,
+                              color: Palette.sandstoneCream,
                               borderRadius: BorderRadius.circular(10),
-                              border:
-                                  Border.all(color: blueprintBlue, width: 1),
+                              border: Border.all(
+                                  color: Palette.blueprintBlue, width: 1),
                               boxShadow: [
                                 BoxShadow(
-                                    color:
-                                        blueprintBlue.withValues(alpha: 0.03),
+                                    color: Palette.blueprintBlue
+                                        .withValues(alpha: 0.03),
                                     blurRadius: 6,
                                     offset: const Offset(0, 3))
                               ],
@@ -231,7 +264,7 @@ class _TabTasksState extends State<TabTasks> {
                                   horizontal: 16, vertical: 4),
                               title: Text(item.title,
                                   style: TextStyle(
-                                      color: blueprintBlue,
+                                      color: Palette.blueprintBlue,
                                       fontWeight: FontWeight.w800,
                                       fontSize: 14)),
                               subtitle: Column(
@@ -243,8 +276,8 @@ class _TabTasksState extends State<TabTasks> {
                                       padding: const EdgeInsets.only(top: 2.0),
                                       child: Text(item.details!,
                                           style: TextStyle(
-                                              color: blueprintBlue.withValues(
-                                                  alpha: 0.7),
+                                              color: Palette.blueprintBlue
+                                                  .withValues(alpha: 0.7),
                                               fontSize: 12)),
                                     ),
                                   if (item.dueDate != null)
@@ -253,15 +286,15 @@ class _TabTasksState extends State<TabTasks> {
                                       child: Row(children: [
                                         Icon(Icons.calendar_today,
                                             size: 11,
-                                            color: blueprintBlue.withValues(
-                                                alpha: 0.5)),
+                                            color: Palette.blueprintBlue
+                                                .withValues(alpha: 0.5)),
                                         const SizedBox(width: 4),
                                         Text(
                                             DateFormat('yyyy-MM-dd')
                                                 .format(item.dueDate!),
                                             style: TextStyle(
-                                                color: blueprintBlue.withValues(
-                                                    alpha: 0.6),
+                                                color: Palette.blueprintBlue
+                                                    .withValues(alpha: 0.6),
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.bold)),
                                       ]),
@@ -273,7 +306,8 @@ class _TabTasksState extends State<TabTasks> {
                                 children: [
                                   IconButton(
                                       icon: Icon(Icons.edit,
-                                          color: blueprintBlue, size: 18),
+                                          color: Palette.blueprintBlue,
+                                          size: 18),
                                       onPressed: () => _showTaskModal(context,
                                           index: index, item: item)),
                                   IconButton(

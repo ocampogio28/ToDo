@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../controllers/todo_controller.dart';
 import '../../models/task_model.dart';
+import 'package:todo_desktop/views/palette.dart';
 
 class TabCalendar extends StatefulWidget {
   final TodoController controller;
@@ -41,9 +42,6 @@ class _TabCalendarState extends State<TabCalendar> {
     final targetedTasks =
         _selectedDay != null ? _getTasksForDay(_selectedDay!) : [];
 
-    const Color blueprintBlue = Color(0xFF2B77A4);
-    const Color darkFrameBlue = Color(0xFF1E5678);
-    const Color sandstoneCream = Color(0xFFF4F1EB);
     const double globalRadius = 16.0;
 
     return Column(
@@ -53,8 +51,8 @@ class _TabCalendarState extends State<TabCalendar> {
 
         // --- 1. LIVE TIME & API WEATHER HEADER ---
         _ClipboardClock(
-          inkColor: blueprintBlue,
-          accentColor: blueprintBlue.withOpacity(0.2),
+          inkColor: Palette.blueprintBlue,
+          accentColor: Palette.blueprintBlue.withValues(alpha: 0.2),
         ),
         const SizedBox(height: 24),
 
@@ -66,12 +64,14 @@ class _TabCalendarState extends State<TabCalendar> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
               decoration: BoxDecoration(
-                color: sandstoneCream,
+                color: Palette.sandstoneCream,
                 borderRadius: BorderRadius.circular(globalRadius),
-                border: Border.all(color: const Color(0xFF477897), width: 1),
+                border: Border.all(
+                    color: Palette.blueprintBlue,
+                    width: 1), // 🛠️ FIXED: Replaced non-existent key
                 boxShadow: [
                   BoxShadow(
-                    color: blueprintBlue.withOpacity(0.1),
+                    color: Palette.blueprintBlue.withValues(alpha: 0.1),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   )
@@ -105,8 +105,9 @@ class _TabCalendarState extends State<TabCalendar> {
                         return Center(
                           child: Text(
                             DateFormat.E().format(day).toUpperCase(),
-                            style: const TextStyle(
-                              color: darkFrameBlue,
+                            style: TextStyle(
+                              color: Palette
+                                  .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                             ),
@@ -123,8 +124,9 @@ class _TabCalendarState extends State<TabCalendar> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: isSameDay(_selectedDay, date)
-                                    ? sandstoneCream
-                                    : darkFrameBlue,
+                                    ? Palette.sandstoneCream
+                                    : Palette
+                                        .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
                               ),
                             ),
                           );
@@ -133,41 +135,48 @@ class _TabCalendarState extends State<TabCalendar> {
                       },
                     ),
                     calendarStyle: CalendarStyle(
-                      defaultTextStyle: const TextStyle(
-                          color: blueprintBlue,
+                      defaultTextStyle: TextStyle(
+                          color: Palette.blueprintBlue,
                           fontSize: 13,
                           fontWeight: FontWeight.w700),
-                      weekendTextStyle: const TextStyle(
-                          color: darkFrameBlue,
+                      weekendTextStyle: TextStyle(
+                          color: Palette
+                              .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
                           fontSize: 13,
                           fontWeight: FontWeight.w500),
                       outsideDaysVisible: false,
                       todayDecoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: darkFrameBlue, width: 1),
+                        border: Border.all(
+                            color: Palette.blueprintBlue,
+                            width:
+                                1), // 🛠️ FIXED: Resolved BorderSide type crash
                       ),
-                      todayTextStyle: const TextStyle(
-                          color: darkFrameBlue, fontWeight: FontWeight.bold),
-                      selectedDecoration: const BoxDecoration(
+                      todayTextStyle: TextStyle(
+                          color: Palette.blueprintBlue,
+                          fontWeight: FontWeight
+                              .bold), // 🛠️ FIXED: Replaced non-existent key
+                      selectedDecoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: blueprintBlue,
+                        color: Palette.blueprintBlue,
                       ),
-                      selectedTextStyle: const TextStyle(
-                          color: sandstoneCream, fontWeight: FontWeight.bold),
+                      selectedTextStyle: TextStyle(
+                          color: Palette.sandstoneCream,
+                          fontWeight: FontWeight.bold),
                     ),
-                    headerStyle: const HeaderStyle(
+                    headerStyle: HeaderStyle(
                       titleCentered: true,
                       titleTextStyle: TextStyle(
-                        color: blueprintBlue,
+                        color: Palette.blueprintBlue,
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.3,
                       ),
                       formatButtonVisible: false,
                       leftChevronIcon: Icon(Icons.arrow_left_rounded,
-                          color: blueprintBlue, size: 24),
+                          color: Palette.blueprintBlue, size: 24),
                       rightChevronIcon: Icon(Icons.arrow_right_rounded,
-                          color: blueprintBlue, size: 24),
+                          color: Palette.blueprintBlue, size: 24),
                       headerPadding: EdgeInsets.symmetric(vertical: 2.0),
                     ),
                   );
@@ -185,7 +194,8 @@ class _TabCalendarState extends State<TabCalendar> {
               width: 8,
               height: 4,
               decoration: BoxDecoration(
-                color: darkFrameBlue,
+                color: Palette
+                    .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -194,10 +204,11 @@ class _TabCalendarState extends State<TabCalendar> {
               _selectedDay == null
                   ? 'SELECT A DATE TO VIEW TASKS'
                   : 'Tasks due on : ${DateFormat('yyyy-MM-dd').format(_selectedDay!).toUpperCase()}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
-                color: darkFrameBlue,
+                color: Palette
+                    .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
                 letterSpacing: 0.5,
               ),
             ),
@@ -215,7 +226,8 @@ class _TabCalendarState extends State<TabCalendar> {
                   child: Text(
                     '[ NO ENTRIES RECORDED ]',
                     style: TextStyle(
-                        color: darkFrameBlue.withOpacity(0.6),
+                        color: Palette.blueprintBlue.withValues(
+                            alpha: 0.6), // 🛠️ FIXED: Replaced non-existent key
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5),
@@ -230,12 +242,13 @@ class _TabCalendarState extends State<TabCalendar> {
                   return Container(
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     decoration: BoxDecoration(
-                      color: sandstoneCream,
+                      color: Palette.sandstoneCream,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: blueprintBlue, width: 1),
+                      border:
+                          Border.all(color: Palette.blueprintBlue, width: 1),
                       boxShadow: [
                         BoxShadow(
-                          color: blueprintBlue.withOpacity(0.03),
+                          color: Palette.blueprintBlue.withValues(alpha: 0.03),
                           blurRadius: 6,
                           offset: const Offset(0, 3),
                         )
@@ -247,17 +260,18 @@ class _TabCalendarState extends State<TabCalendar> {
                           horizontal: 16, vertical: 2),
                       title: Text(
                         task.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w800,
-                          color: blueprintBlue,
+                          color: Palette.blueprintBlue,
                           fontSize: 13,
                         ),
                       ),
                       subtitle: task.details != null && task.details!.isNotEmpty
                           ? Text(
                               task.details!,
-                              style: const TextStyle(
-                                color: darkFrameBlue,
+                              style: TextStyle(
+                                color: Palette
+                                    .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -381,7 +395,7 @@ class _ClipboardClockState extends State<_ClipboardClock> {
                 Text(
                   secString,
                   style: TextStyle(
-                    color: widget.inkColor.withOpacity(0.4),
+                    color: widget.inkColor.withValues(alpha: 0.4),
                     fontSize: 18,
                     fontWeight: FontWeight.w400,
                   ),
@@ -392,7 +406,7 @@ class _ClipboardClockState extends State<_ClipboardClock> {
             Text(
               'TODAY : $dateString',
               style: TextStyle(
-                color: widget.inkColor.withOpacity(0.55),
+                color: widget.inkColor.withValues(alpha: 0.55),
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.3,
@@ -430,7 +444,7 @@ class _ClipboardClockState extends State<_ClipboardClock> {
             Text(
               _condition,
               style: TextStyle(
-                color: widget.inkColor.withOpacity(0.55),
+                color: widget.inkColor.withValues(alpha: 0.55),
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.5,

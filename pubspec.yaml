@@ -12,6 +12,8 @@ dependencies:
   table_calendar: ^3.1.2 # For your dashboard calendar sync
   desktop_window: ^0.4.0 # For your window resolution controls
   http: ^1.6.0
+  wakelock_plus: ^1.6.1
+  audioplayers: ^6.6.0
 
 dev_dependencies:
   flutter_test:
@@ -22,7 +24,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/bg.jpg
+    - assets/ding.mp3
+    - assets/button.mp3
+    - assets/delete.mp3
+    - assets/add.mp3
 
 # 🚀 STANDALONE WINDOWS INSTALLER CONFIGURATION
 msix_config:

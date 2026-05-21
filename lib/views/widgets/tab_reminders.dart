@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../../controllers/todo_controller.dart';
 import '../../models/task_model.dart';
+import 'package:todo_desktop/views/palette.dart'; // 🎨 FIXED: Added absolute global palette reference
 
 class TabReminders extends StatefulWidget {
   final TodoController controller;
@@ -12,32 +14,49 @@ class TabReminders extends StatefulWidget {
 }
 
 class _TabRemindersState extends State<TabReminders> {
-  // --- COLOR PALETTE ---
-  final Color blueprintBlue = const Color(0xFF2B77A4);
-  final Color sandstoneCream = const Color(0xFFF4F1EB);
+  // --- AUDIO PIPELINE PLAYER ---
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  void _playSFX(String fileName) async {
+    try {
+      await _audioPlayer.stop(); // Stops any ongoing sound immediately
+      await _audioPlayer.play(AssetSource(fileName));
+    } catch (e) {
+      debugPrint("View sound effect error ($fileName): $e");
+    }
+  }
 
   // --- MODAL: DELETE CONFIRMATION ---
   void _confirmDelete(BuildContext context, int index, String title) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: sandstoneCream,
+        backgroundColor:
+            Palette.sandstoneCream, // 🎨 Centralized Palette integration
         title: Text("DELETE REMINDER",
-            style:
-                TextStyle(color: blueprintBlue, fontWeight: FontWeight.w900)),
+            style: TextStyle(
+                color: Palette.blueprintBlue,
+                fontWeight:
+                    FontWeight.w900)), // 🎨 Centralized Palette integration
         content: Text("Are you sure you want to delete \"$title\"?",
-            style: TextStyle(color: blueprintBlue.withValues(alpha: 0.7))),
+            style: TextStyle(
+                color: Palette.blueprintBlue.withValues(
+                    alpha: 0.7))), // 🎨 Centralized Palette integration
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text("CANCEL",
-                style: TextStyle(color: blueprintBlue.withValues(alpha: 0.5))),
+                style: TextStyle(
+                    color: Palette.blueprintBlue.withValues(
+                        alpha: 0.5))), // 🎨 Centralized Palette integration
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white),
+                foregroundColor:
+                    Palette.pureWhite), // 🎨 Swapped to Palette constant
             onPressed: () {
+              _playSFX('delete.mp3'); // 🔥 Play deletion sound effect
               widget.controller.deleteReminder(index);
               Navigator.pop(ctx);
             },
@@ -59,12 +78,15 @@ class _TabRemindersState extends State<TabReminders> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: sandstoneCream,
+          backgroundColor:
+              Palette.sandstoneCream, // 🎨 Centralized Palette integration
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(index == null ? 'NEW REMINDER' : 'MODIFY REMINDER',
-              style:
-                  TextStyle(color: blueprintBlue, fontWeight: FontWeight.w900)),
+              style: TextStyle(
+                  color: Palette.blueprintBlue,
+                  fontWeight:
+                      FontWeight.w900)), // 🎨 Centralized Palette integration
           content: SizedBox(
             width: 450,
             child: Column(
@@ -72,41 +94,59 @@ class _TabRemindersState extends State<TabReminders> {
               children: [
                 TextField(
                   controller: titleController,
-                  style: TextStyle(color: blueprintBlue),
+                  style: TextStyle(
+                      color: Palette
+                          .blueprintBlue), // 🎨 Centralized Palette integration
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor:
+                        Palette.pureWhite, // 🎨 Swapped to Palette constant
                     labelText: 'REMINDER TITLE',
-                    labelStyle:
-                        TextStyle(color: blueprintBlue.withValues(alpha: 0.6)),
+                    labelStyle: TextStyle(
+                        color: Palette.blueprintBlue.withValues(
+                            alpha: 0.6)), // 🎨 Centralized Palette integration
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(
-                            color: blueprintBlue.withValues(alpha: 0.3))),
+                            color: Palette.blueprintBlue.withValues(
+                                alpha:
+                                    0.3))), // 🎨 Centralized Palette integration
                     focusedBorder: OutlineInputBorder(
+                        // 🎯 FIXED: Correctly configured without compiler 'const' conflicts
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: blueprintBlue)),
+                        borderSide: BorderSide(
+                            color: Palette
+                                .blueprintBlue)), // 🎨 Centralized Palette integration
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: detailsController,
-                  style: TextStyle(color: blueprintBlue),
+                  style: TextStyle(
+                      color: Palette
+                          .blueprintBlue), // 🎨 Centralized Palette integration
                   minLines: 3,
                   maxLines: 5,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor:
+                        Palette.pureWhite, // 🎨 Swapped to Palette constant
                     labelText: 'DETAILS',
-                    labelStyle:
-                        TextStyle(color: blueprintBlue.withValues(alpha: 0.6)),
+                    labelStyle: TextStyle(
+                        color: Palette.blueprintBlue.withValues(
+                            alpha: 0.6)), // 🎨 Centralized Palette integration
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(
-                            color: blueprintBlue.withValues(alpha: 0.3))),
+                            color: Palette.blueprintBlue.withValues(
+                                alpha:
+                                    0.3))), // 🎨 Centralized Palette integration
                     focusedBorder: OutlineInputBorder(
+                        // 🎯 FIXED: Correctly configured without compiler 'const' conflicts
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: blueprintBlue)),
+                        borderSide: BorderSide(
+                            color: Palette
+                                .blueprintBlue)), // 🎨 Centralized Palette integration
                   ),
                 ),
               ],
@@ -117,13 +157,18 @@ class _TabRemindersState extends State<TabReminders> {
                 onPressed: () => Navigator.pop(dialogContext),
                 child: Text('CANCEL',
                     style: TextStyle(
-                        color: blueprintBlue.withValues(alpha: 0.5)))),
+                        color: Palette.blueprintBlue.withValues(
+                            alpha:
+                                0.5)))), // 🎨 Centralized Palette integration
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: blueprintBlue,
-                  foregroundColor: Colors.white),
+                  backgroundColor: Palette
+                      .blueprintBlue, // 🎨 Centralized Palette integration
+                  foregroundColor:
+                      Palette.pureWhite), // 🎨 Swapped to Palette constant
               onPressed: () {
                 if (titleController.text.isNotEmpty) {
+                  _playSFX('add.mp3'); // 🔥 Play add sound effect when saved
                   if (index == null) {
                     widget.controller.addReminder(titleController.text,
                         details: detailsController.text);
@@ -144,6 +189,12 @@ class _TabRemindersState extends State<TabReminders> {
   }
 
   @override
+  void dispose() {
+    _audioPlayer.dispose(); // Cleans up native desktop resources
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: widget.controller,
@@ -161,13 +212,21 @@ class _TabRemindersState extends State<TabReminders> {
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
-                          color: blueprintBlue)),
+                          color: Palette
+                              .blueprintBlue)), // 🎨 Centralized Palette integration
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: blueprintBlue)),
+                        side: BorderSide(
+                            color: Palette
+                                .blueprintBlue)), // 🎨 Centralized Palette integration
                     onPressed: () => _showReminderModal(context),
-                    icon: Icon(Icons.add, color: blueprintBlue),
-                    label: Text('NEW', style: TextStyle(color: blueprintBlue)),
+                    icon: Icon(Icons.add,
+                        color: Palette
+                            .blueprintBlue), // 🎨 Centralized Palette integration
+                    label: Text('NEW',
+                        style: TextStyle(
+                            color: Palette
+                                .blueprintBlue)), // 🎨 Centralized Palette integration
                   ),
                 ],
               ),
@@ -177,7 +236,9 @@ class _TabRemindersState extends State<TabReminders> {
                     ? Center(
                         child: Text('[ NO REMINDERS SET ]',
                             style: TextStyle(
-                                color: blueprintBlue.withValues(alpha: 0.4))))
+                                color: Palette.blueprintBlue.withValues(
+                                    alpha:
+                                        0.4)))) // 🎨 Centralized Palette integration
                     : ListView.builder(
                         itemCount: reminderList.length,
                         itemBuilder: (context, index) {
@@ -186,15 +247,18 @@ class _TabRemindersState extends State<TabReminders> {
                             margin: const EdgeInsets.symmetric(
                                 vertical: 6, horizontal: 2),
                             decoration: BoxDecoration(
-                              // 🔥 SPECIFIED DESIGN SYSTEM FRAME PROPERTIES APPLIED HERE 🔥
-                              color: sandstoneCream,
+                              color: Palette
+                                  .sandstoneCream, // 🎨 Centralized Palette integration
                               borderRadius: BorderRadius.circular(10),
-                              border:
-                                  Border.all(color: blueprintBlue, width: 1),
+                              border: Border.all(
+                                  color: Palette.blueprintBlue,
+                                  width:
+                                      1), // 🎨 Centralized Palette integration
                               boxShadow: [
                                 BoxShadow(
-                                    color:
-                                        blueprintBlue.withValues(alpha: 0.03),
+                                    color: Palette.blueprintBlue.withValues(
+                                        alpha:
+                                            0.03), // 🎨 Centralized Palette integration
                                     blurRadius: 6,
                                     offset: const Offset(0, 3))
                               ],
@@ -205,7 +269,8 @@ class _TabRemindersState extends State<TabReminders> {
                                   horizontal: 16, vertical: 4),
                               title: Text(item.title,
                                   style: TextStyle(
-                                      color: blueprintBlue,
+                                      color: Palette
+                                          .blueprintBlue, // 🎨 Centralized Palette integration
                                       fontWeight: FontWeight.w800,
                                       fontSize: 14)),
                               subtitle: item.details != null &&
@@ -214,8 +279,10 @@ class _TabRemindersState extends State<TabReminders> {
                                       padding: const EdgeInsets.only(top: 2.0),
                                       child: Text(item.details!,
                                           style: TextStyle(
-                                              color: blueprintBlue.withValues(
-                                                  alpha: 0.7),
+                                              color: Palette.blueprintBlue
+                                                  .withValues(
+                                                      // 🎨 Centralized Palette integration
+                                                      alpha: 0.7),
                                               fontSize: 12)),
                                     )
                                   : null,
@@ -224,7 +291,9 @@ class _TabRemindersState extends State<TabReminders> {
                                 children: [
                                   IconButton(
                                       icon: Icon(Icons.edit,
-                                          color: blueprintBlue, size: 18),
+                                          color: Palette.blueprintBlue,
+                                          size:
+                                              18), // 🎨 Centralized Palette integration
                                       onPressed: () => _showReminderModal(
                                           context,
                                           index: index,
