@@ -12,13 +12,17 @@ class TodoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // --- COZY CHECKERED CANVAS COLOR PALETTE ---
+    const Color paperBackground = Color(0xFFF9F6EF);
+    final Color gridLineColor = const Color(0xFF2B77A4).withOpacity(0.2);
+
     return ListenableBuilder(
       listenable: controller,
       builder: (context, child) {
         final activeIndex = controller.currentTabIndex;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF9F6EF),
+          backgroundColor: paperBackground,
           body: Row(
             children: [
               // Left Column Nav
@@ -27,11 +31,26 @@ class TodoView extends StatelessWidget {
                 onTabSelected: controller.changeTab,
               ),
 
-              // Right Content Viewport
+              // Right Content Viewport with Checkered Background
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: _buildActiveTab(activeIndex),
+                child: Stack(
+                  children: [
+                    // The Full-Surface Checkered/Grid Canvas Layer
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: CheckeredBackgroundPainter(
+                          gridColor: gridLineColor,
+                          gridSize: 24.0,
+                        ),
+                      ),
+                    ),
+
+                    // Active Viewport UI Content Layer
+                    Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: _buildActiveTab(activeIndex),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -41,23 +60,45 @@ class TodoView extends StatelessWidget {
     );
   }
 
-  // 🔄 REARRANGED: Calendar is now index 0 (Dashboard default)
   Widget _buildActiveTab(int index) {
     switch (index) {
       case 0:
-        // ❌ BEFORE: return const TabCalendar();
-        return TabCalendar(
-          controller: controller,
-        ); //  FIXED: Pass the required controller
+        return TabCalendar(controller: controller);
       case 1:
         return TabTasks(controller: controller);
       case 2:
         return TabReminders(controller: controller);
       default:
-        // ❌ BEFORE: return const TabCalendar();
-        return TabCalendar(
-          controller: controller,
-        ); //  FIXED: Pass the required controller here too
+        return TabCalendar(controller: controller);
     }
   }
+}
+
+// --- SUBTLE HIGH-PERFORMANCE CHECKERED CANVAS PAINTER ---
+class CheckeredBackgroundPainter extends CustomPainter {
+  final Color gridColor;
+  final double gridSize;
+
+  CheckeredBackgroundPainter({required this.gridColor, this.gridSize = 24.0});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = gridColor
+      ..strokeWidth = 0.6;
+
+    // Draw vertical check lines
+    for (double x = 0; x < size.width; x += gridSize) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+
+    // Draw horizontal check lines
+    for (double y = 0; y < size.height; y += gridSize) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CheckeredBackgroundPainter oldDelegate) =>
+      oldDelegate.gridColor != gridColor || oldDelegate.gridSize != gridSize;
 }

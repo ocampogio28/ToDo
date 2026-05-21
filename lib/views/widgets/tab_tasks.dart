@@ -34,7 +34,7 @@ class _TabTasksState extends State<TabTasks> {
               backgroundColor: sandstoneCream,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
-              title: Text(index == null ? 'NEW MANIFEST' : 'MODIFY ENTRY',
+              title: Text(index == null ? 'NEW TASK' : 'MODIFY TASKS',
                   style: TextStyle(
                       color: blueprintBlue, fontWeight: FontWeight.w900)),
               content: SizedBox(
@@ -212,19 +212,23 @@ class _TabTasksState extends State<TabTasks> {
                             margin: const EdgeInsets.symmetric(
                                 vertical: 6, horizontal: 2),
                             decoration: BoxDecoration(
+                              // 🔥 YOUR SPECIFIED DESIGN SYSTEM FRAME PROPERTIES APPLIED HERE 🔥
                               color: sandstoneCream,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: blueprintBlue.withValues(alpha: 0.12)),
+                              borderRadius: BorderRadius.circular(10),
+                              border:
+                                  Border.all(color: blueprintBlue, width: 1),
                               boxShadow: [
                                 BoxShadow(
                                     color:
-                                        blueprintBlue.withValues(alpha: 0.05),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4))
+                                        blueprintBlue.withValues(alpha: 0.03),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3))
                               ],
                             ),
                             child: ListTile(
+                              dense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 4),
                               title: Text(item.title,
                                   style: TextStyle(
                                       color: blueprintBlue,
@@ -235,11 +239,14 @@ class _TabTasksState extends State<TabTasks> {
                                 children: [
                                   if (item.details != null &&
                                       item.details!.isNotEmpty)
-                                    Text(item.details!,
-                                        style: TextStyle(
-                                            color: blueprintBlue.withValues(
-                                                alpha: 0.7),
-                                            fontSize: 12)),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2.0),
+                                      child: Text(item.details!,
+                                          style: TextStyle(
+                                              color: blueprintBlue.withValues(
+                                                  alpha: 0.7),
+                                              fontSize: 12)),
+                                    ),
                                   if (item.dueDate != null)
                                     Padding(
                                       padding: const EdgeInsets.only(top: 8),

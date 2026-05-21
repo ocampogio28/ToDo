@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../controllers/todo_controller.dart';
@@ -39,9 +41,9 @@ class _TabCalendarState extends State<TabCalendar> {
     final targetedTasks =
         _selectedDay != null ? _getTasksForDay(_selectedDay!) : [];
 
-    // --- ARCHITECTURAL CUSTOM COLOR PALETTE ---
-    const Color blueprintBlue = Color(0xFF2B77A4); // Accent & Ink text color
-    const Color sandstoneCream = Color(0xFFF4F1EB); // Base surface paper color
+    const Color blueprintBlue = Color(0xFF2B77A4);
+    const Color darkFrameBlue = Color(0xFF1E5678);
+    const Color sandstoneCream = Color(0xFFF4F1EB);
     const double globalRadius = 16.0;
 
     return Column(
@@ -49,10 +51,11 @@ class _TabCalendarState extends State<TabCalendar> {
       children: [
         const SizedBox(height: 16),
 
-        // --- 1. TRACKING TIME HEADER ---
+        // --- 1. LIVE TIME & API WEATHER HEADER ---
         _ClipboardClock(
-            inkColor: blueprintBlue,
-            accentColor: blueprintBlue.withValues(alpha: 0.6)),
+          inkColor: blueprintBlue,
+          accentColor: blueprintBlue.withOpacity(0.2),
+        ),
         const SizedBox(height: 24),
 
         // --- 2. CURVED CALENDAR SHEET ---
@@ -63,14 +66,13 @@ class _TabCalendarState extends State<TabCalendar> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
               decoration: BoxDecoration(
-                color: sandstoneCream, // Applied sandstone cream background
+                color: sandstoneCream,
                 borderRadius: BorderRadius.circular(globalRadius),
-                border: Border.all(
-                    color: blueprintBlue.withValues(alpha: 0.15), width: 1),
+                border: Border.all(color: const Color(0xFF477897), width: 1),
                 boxShadow: [
                   BoxShadow(
-                    color: blueprintBlue.withValues(alpha: 0.05),
-                    blurRadius: 12,
+                    color: blueprintBlue.withOpacity(0.1),
+                    blurRadius: 16,
                     offset: const Offset(0, 6),
                   )
                 ],
@@ -103,15 +105,14 @@ class _TabCalendarState extends State<TabCalendar> {
                         return Center(
                           child: Text(
                             DateFormat.E().format(day).toUpperCase(),
-                            style: TextStyle(
-                              color: blueprintBlue.withValues(alpha: 0.6),
+                            style: const TextStyle(
+                              color: darkFrameBlue,
                               fontSize: 11,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         );
                       },
-                      // Rounded blueprint indicator dot
                       markerBuilder: (context, date, events) {
                         if (events.isNotEmpty) {
                           return Positioned(
@@ -123,7 +124,7 @@ class _TabCalendarState extends State<TabCalendar> {
                                 shape: BoxShape.circle,
                                 color: isSameDay(_selectedDay, date)
                                     ? sandstoneCream
-                                    : blueprintBlue.withValues(alpha: 0.5),
+                                    : darkFrameBlue,
                               ),
                             ),
                           );
@@ -135,23 +136,18 @@ class _TabCalendarState extends State<TabCalendar> {
                       defaultTextStyle: const TextStyle(
                           color: blueprintBlue,
                           fontSize: 13,
-                          fontWeight: FontWeight.w600),
-                      weekendTextStyle: TextStyle(
-                          color: blueprintBlue.withValues(alpha: 0.5),
-                          fontSize: 13),
+                          fontWeight: FontWeight.w700),
+                      weekendTextStyle: const TextStyle(
+                          color: darkFrameBlue,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500),
                       outsideDaysVisible: false,
-
-                      // Today: Sharp hollow ring outline
                       todayDecoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                            color: blueprintBlue.withValues(alpha: 0.5),
-                            width: 1.2),
+                        border: Border.all(color: darkFrameBlue, width: 1),
                       ),
                       todayTextStyle: const TextStyle(
-                          color: blueprintBlue, fontWeight: FontWeight.bold),
-
-                      // Selected: Inverted solid deep slate blue circle
+                          color: darkFrameBlue, fontWeight: FontWeight.bold),
                       selectedDecoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: blueprintBlue,
@@ -159,20 +155,20 @@ class _TabCalendarState extends State<TabCalendar> {
                       selectedTextStyle: const TextStyle(
                           color: sandstoneCream, fontWeight: FontWeight.bold),
                     ),
-                    headerStyle: HeaderStyle(
+                    headerStyle: const HeaderStyle(
                       titleCentered: true,
-                      titleTextStyle: const TextStyle(
+                      titleTextStyle: TextStyle(
                         color: blueprintBlue,
                         fontSize: 14,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w900,
                         letterSpacing: 0.3,
                       ),
                       formatButtonVisible: false,
-                      leftChevronIcon: const Icon(Icons.arrow_left_rounded,
-                          color: blueprintBlue, size: 22),
-                      rightChevronIcon: const Icon(Icons.arrow_right_rounded,
-                          color: blueprintBlue, size: 22),
-                      headerPadding: const EdgeInsets.symmetric(vertical: 2.0),
+                      leftChevronIcon: Icon(Icons.arrow_left_rounded,
+                          color: blueprintBlue, size: 24),
+                      rightChevronIcon: Icon(Icons.arrow_right_rounded,
+                          color: blueprintBlue, size: 24),
+                      headerPadding: EdgeInsets.symmetric(vertical: 2.0),
                     ),
                   );
                 },
@@ -189,19 +185,19 @@ class _TabCalendarState extends State<TabCalendar> {
               width: 8,
               height: 4,
               decoration: BoxDecoration(
-                color: blueprintBlue,
+                color: darkFrameBlue,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(width: 8),
             Text(
               _selectedDay == null
-                  ? 'DAILY MANIFEST'
-                  : 'LOG // ${DateFormat('yyyy_MM_dd').format(_selectedDay!).toUpperCase()}',
+                  ? 'SELECT A DATE TO VIEW TASKS'
+                  : 'Tasks due on : ${DateFormat('yyyy-MM-dd').format(_selectedDay!).toUpperCase()}',
               style: const TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: blueprintBlue,
+                fontWeight: FontWeight.w900,
+                color: darkFrameBlue,
                 letterSpacing: 0.5,
               ),
             ),
@@ -209,7 +205,7 @@ class _TabCalendarState extends State<TabCalendar> {
         ),
         const SizedBox(height: 12),
 
-        // --- 4. CURVED TASK TILES ---
+        // --- 4. TASK TILES VIEW ---
         Expanded(
           child: ListenableBuilder(
             listenable: widget.controller,
@@ -219,9 +215,10 @@ class _TabCalendarState extends State<TabCalendar> {
                   child: Text(
                     '[ NO ENTRIES RECORDED ]',
                     style: TextStyle(
-                        color: blueprintBlue.withValues(alpha: 0.4),
+                        color: darkFrameBlue.withOpacity(0.6),
                         fontSize: 12,
-                        fontWeight: FontWeight.bold),
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5),
                   ),
                 );
               }
@@ -233,17 +230,14 @@ class _TabCalendarState extends State<TabCalendar> {
                   return Container(
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     decoration: BoxDecoration(
-                      color:
-                          sandstoneCream, // Applied sandstone cream background
+                      color: sandstoneCream,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: blueprintBlue.withValues(alpha: 0.12),
-                          width: 1),
+                      border: Border.all(color: blueprintBlue, width: 1),
                       boxShadow: [
                         BoxShadow(
-                          color: blueprintBlue.withValues(alpha: 0.02),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
+                          color: blueprintBlue.withOpacity(0.03),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
                         )
                       ],
                     ),
@@ -254,7 +248,7 @@ class _TabCalendarState extends State<TabCalendar> {
                       title: Text(
                         task.title,
                         style: const TextStyle(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                           color: blueprintBlue,
                           fontSize: 13,
                         ),
@@ -262,9 +256,10 @@ class _TabCalendarState extends State<TabCalendar> {
                       subtitle: task.details != null && task.details!.isNotEmpty
                           ? Text(
                               task.details!,
-                              style: TextStyle(
-                                color: blueprintBlue.withValues(alpha: 0.6),
+                              style: const TextStyle(
+                                color: darkFrameBlue,
                                 fontSize: 11,
+                                fontWeight: FontWeight.w500,
                               ),
                             )
                           : null,
@@ -280,6 +275,7 @@ class _TabCalendarState extends State<TabCalendar> {
   }
 }
 
+// --- CLOCK AND WEATHER WIDGET WITH LIVE PARSING ---
 class _ClipboardClock extends StatefulWidget {
   final Color inkColor;
   final Color accentColor;
@@ -293,10 +289,15 @@ class _ClipboardClockState extends State<_ClipboardClock> {
   late DateTime _currentTime;
   Timer? _timer;
 
+  String _temperature = "--°C";
+  String _condition = "LOADING WEATHER...";
+  bool _isLoadingWeather = true;
+
   @override
   void initState() {
     super.initState();
     _currentTime = DateTime.now();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
@@ -304,6 +305,42 @@ class _ClipboardClockState extends State<_ClipboardClock> {
         });
       }
     });
+
+    _fetchLiveWeather();
+  }
+
+  Future<void> _fetchLiveWeather() async {
+    try {
+      final url = Uri.parse('https://wttr.in/?format=j1');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final currentCondition = data['current_condition'][0];
+        final tempC = currentCondition['temp_C'];
+        final desc = currentCondition['weatherDesc'][0]['value']
+            .toString()
+            .toUpperCase();
+
+        if (mounted) {
+          setState(() {
+            _temperature = "$tempC°C";
+            _condition = desc;
+            _isLoadingWeather = false;
+          });
+        }
+      } else {
+        throw Exception();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _temperature = "??°C";
+          _condition = "WEATHER OFFLINE";
+          _isLoadingWeather = false;
+        });
+      }
+    }
   }
 
   @override
@@ -319,41 +356,87 @@ class _ClipboardClockState extends State<_ClipboardClock> {
     final dateString =
         DateFormat('EEE / MMM d / yyyy').format(_currentTime).toUpperCase();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              timeString,
-              style: TextStyle(
-                color: widget.inkColor,
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  timeString,
+                  style: TextStyle(
+                    color: widget.inkColor,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                    height: 1.1,
+                  ),
+                ),
+                Text(
+                  secString,
+                  style: TextStyle(
+                    color: widget.inkColor.withOpacity(0.4),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
+            const SizedBox(height: 4),
             Text(
-              secString,
+              'TODAY : $dateString',
               style: TextStyle(
-                color: widget.inkColor.withValues(alpha: 0.4),
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
+                color: widget.inkColor.withOpacity(0.55),
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 2),
-        Text(
-          'RECORD DATE // $dateString',
-          style: TextStyle(
-            color: widget.inkColor.withValues(alpha: 0.55),
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.3,
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  _isLoadingWeather
+                      ? Icons.wb_cloudy_rounded
+                      : Icons.wb_sunny_rounded,
+                  color: widget.inkColor,
+                  size: 20,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  _temperature,
+                  style: TextStyle(
+                    color: widget.inkColor,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _condition,
+              style: TextStyle(
+                color: widget.inkColor.withOpacity(0.55),
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
         ),
       ],
     );
