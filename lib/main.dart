@@ -1,42 +1,51 @@
-import 'dart:io'; // Needed to check if running on Desktop safely
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:desktop_window/desktop_window.dart'; // 👈 Import the package
+import 'package:desktop_window/desktop_window.dart';
 import 'controllers/todo_controller.dart';
+import 'controllers/music_controller.dart';
 import 'views/todo_view.dart';
 
 void main() async {
-  // Ensure framework bindings are ready before triggering async window configs
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Apply resolution controls exclusively when running on Desktop environments
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    // 📐 Set the primary initial launching size window
     await DesktopWindow.setWindowSize(const Size(500, 900));
-
-    // 🔒 Establish boundaries so the UI layouts won't break from excessive shrinking
     await DesktopWindow.setMinWindowSize(const Size(500, 900));
   }
 
-  runApp(const TodoApp());
+  // Pass the instances into the app so they aren't recreated on rebuilds
+  runApp(
+    TodoApp(
+      todoController: TodoController(),
+      musicManager: MusicManager(),
+    ),
+  );
 }
 
 class TodoApp extends StatelessWidget {
-  const TodoApp({super.key});
+  final TodoController todoController;
+  final MusicManager musicManager;
+
+  const TodoApp({
+    super.key,
+    required this.todoController,
+    required this.musicManager,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final todoController = TodoController();
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Desktop ToDo',
       theme: ThemeData(
         brightness: Brightness.dark,
-        primaryColor:
-            const Color.from(alpha: 1, red: 0.133, green: 0.078, blue: 0.078),
+        primaryColor: const Color.fromARGB(255, 34, 20, 20),
         scaffoldBackgroundColor: const Color(0xFF121212),
       ),
-      home: TodoView(controller: todoController),
+      home: TodoView(
+        controller: todoController,
+        musicManager: musicManager,
+      ),
     );
   }
 }

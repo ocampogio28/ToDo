@@ -20,13 +20,13 @@ class LightTheme implements AppTheme {
 
 class DarkTheme implements AppTheme {
   @override
-  Color get blueprintBlue => const Color(0xFF53A2D7);
+  Color get blueprintBlue => const Color(0xFFF4AE3F);
   @override
-  Color get sandstoneCream => const Color(0xFF12151C);
+  Color get sandstoneCream => const Color(0xFF213058);
   @override
-  Color get textPrimary => const Color(0xFFE2E8F0);
+  Color get textPrimary => const Color(0xFFF0E6D7);
   @override
-  Color get sidebarBg => const Color(0xFF1A1D24);
+  Color get sidebarBg => const Color(0xFF1B2742);
 }
 
 // Static lookups for legacy areas of your code

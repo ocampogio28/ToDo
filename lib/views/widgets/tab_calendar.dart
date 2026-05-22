@@ -6,12 +6,17 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../controllers/todo_controller.dart';
 import '../../models/task_model.dart';
+import '../../controllers/music_controller.dart'; // 👈 Added import
 import 'package:todo_desktop/views/palette.dart';
 
 class TabCalendar extends StatefulWidget {
   final TodoController controller;
+  final MusicManager musicManager; // 👈 Added
 
-  const TabCalendar({super.key, required this.controller});
+  const TabCalendar(
+      {super.key,
+      required this.controller,
+      required this.musicManager}); // 👈 Updated constructor
 
   @override
   State<TabCalendar> createState() => _TabCalendarState();
@@ -49,6 +54,10 @@ class _TabCalendarState extends State<TabCalendar> {
       children: [
         const SizedBox(height: 16),
 
+        // --- NEW: MUSIC PLAYER BAR ---
+        _buildMusicPlayerBar(),
+        const SizedBox(height: 16),
+
         // --- 1. LIVE TIME & API WEATHER HEADER ---
         _ClipboardClock(
           inkColor: Palette.blueprintBlue,
@@ -66,9 +75,7 @@ class _TabCalendarState extends State<TabCalendar> {
               decoration: BoxDecoration(
                 color: Palette.sandstoneCream,
                 borderRadius: BorderRadius.circular(globalRadius),
-                border: Border.all(
-                    color: Palette.blueprintBlue,
-                    width: 1), // 🛠️ FIXED: Replaced non-existent key
+                border: Border.all(color: Palette.blueprintBlue, width: 1),
                 boxShadow: [
                   BoxShadow(
                     color: Palette.blueprintBlue.withValues(alpha: 0.1),
@@ -106,8 +113,7 @@ class _TabCalendarState extends State<TabCalendar> {
                           child: Text(
                             DateFormat.E().format(day).toUpperCase(),
                             style: TextStyle(
-                              color: Palette
-                                  .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
+                              color: Palette.blueprintBlue,
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                             ),
@@ -125,8 +131,7 @@ class _TabCalendarState extends State<TabCalendar> {
                                 shape: BoxShape.circle,
                                 color: isSameDay(_selectedDay, date)
                                     ? Palette.sandstoneCream
-                                    : Palette
-                                        .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
+                                    : Palette.blueprintBlue,
                               ),
                             ),
                           );
@@ -140,22 +145,18 @@ class _TabCalendarState extends State<TabCalendar> {
                           fontSize: 13,
                           fontWeight: FontWeight.w700),
                       weekendTextStyle: TextStyle(
-                          color: Palette
-                              .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
+                          color: Palette.blueprintBlue,
                           fontSize: 13,
                           fontWeight: FontWeight.w500),
                       outsideDaysVisible: false,
                       todayDecoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                            color: Palette.blueprintBlue,
-                            width:
-                                1), // 🛠️ FIXED: Resolved BorderSide type crash
+                        border:
+                            Border.all(color: Palette.blueprintBlue, width: 1),
                       ),
                       todayTextStyle: TextStyle(
                           color: Palette.blueprintBlue,
-                          fontWeight: FontWeight
-                              .bold), // 🛠️ FIXED: Replaced non-existent key
+                          fontWeight: FontWeight.bold),
                       selectedDecoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Palette.blueprintBlue,
@@ -194,8 +195,7 @@ class _TabCalendarState extends State<TabCalendar> {
               width: 8,
               height: 4,
               decoration: BoxDecoration(
-                color: Palette
-                    .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
+                color: Palette.blueprintBlue,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -207,8 +207,7 @@ class _TabCalendarState extends State<TabCalendar> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
-                color: Palette
-                    .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
+                color: Palette.blueprintBlue,
                 letterSpacing: 0.5,
               ),
             ),
@@ -226,8 +225,7 @@ class _TabCalendarState extends State<TabCalendar> {
                   child: Text(
                     '[ NO ENTRIES RECORDED ]',
                     style: TextStyle(
-                        color: Palette.blueprintBlue.withValues(
-                            alpha: 0.6), // 🛠️ FIXED: Replaced non-existent key
+                        color: Palette.blueprintBlue.withValues(alpha: 0.6),
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5),
@@ -270,8 +268,7 @@ class _TabCalendarState extends State<TabCalendar> {
                           ? Text(
                               task.details!,
                               style: TextStyle(
-                                color: Palette
-                                    .blueprintBlue, // 🛠️ FIXED: Replaced non-existent key
+                                color: Palette.blueprintBlue,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -287,7 +284,101 @@ class _TabCalendarState extends State<TabCalendar> {
       ],
     );
   }
+
+  // --- ADDED MUSIC PLAYER BAR ---
+  Widget _buildMusicPlayerBar() {
+    return Container(
+      width: 420,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      decoration: BoxDecoration(
+        color: Palette.sandstoneCream,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Palette.blueprintBlue, width: 1),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // --- TOP ROW: Track Name & Play/Next ---
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.music_note_rounded,
+                  color: Palette.blueprintBlue, size: 18),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ValueListenableBuilder<String>(
+                  valueListenable: widget.musicManager.currentTrackName,
+                  builder: (context, trackName, _) => Text(
+                    trackName.toUpperCase(),
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        color: Palette.blueprintBlue,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 11),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.play_arrow_rounded),
+                color: Palette.blueprintBlue,
+                onPressed: () => widget.musicManager.togglePlayPause(),
+                iconSize: 22,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 16),
+              IconButton(
+                icon: const Icon(Icons.skip_next_rounded),
+                color: Palette.blueprintBlue,
+                onPressed: () => widget.musicManager.playNextTrack(),
+                iconSize: 22,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+
+          // --- VOLUME SLIDER ONLY ---
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.volume_up_rounded,
+                  color: Palette.blueprintBlue, size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    trackHeight: 2,
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 6),
+                    activeTrackColor: Palette.blueprintBlue,
+                    inactiveTrackColor:
+                        Palette.blueprintBlue.withValues(alpha: 0.3),
+                    thumbColor: Palette.blueprintBlue,
+                  ),
+                  child: ValueListenableBuilder<double>(
+                    valueListenable: widget.musicManager.volume,
+                    builder: (context, vol, _) {
+                      return Slider(
+                        min: 0.0,
+                        max: 1.0,
+                        value: vol,
+                        onChanged: (val) => widget.musicManager.setVolume(val),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+// ... _ClipboardClock and other classes remain exactly as they were ...
 
 // --- CLOCK AND WEATHER WIDGET WITH LIVE PARSING ---
 class _ClipboardClock extends StatefulWidget {

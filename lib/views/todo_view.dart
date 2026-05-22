@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import '../controllers/todo_controller.dart';
+import '../controllers/music_controller.dart'; // Added import
 import 'widgets/todo_sidebar.dart';
 import 'widgets/tab_calendar.dart';
 import 'widgets/tab_tasks.dart';
 import 'widgets/tab_reminders.dart';
-import 'palette.dart'; // Ensure this points correctly to your palette implementation
+import 'palette.dart';
 
 class TodoView extends StatelessWidget {
   final TodoController controller;
+  final MusicManager musicManager; // Added field
 
-  const TodoView({super.key, required this.controller});
+  const TodoView({
+    super.key,
+    required this.controller,
+    required this.musicManager, // Added to constructor
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,30 +24,24 @@ class TodoView extends StatelessWidget {
       builder: (context, child) {
         final activeIndex = controller.currentTabIndex;
 
-        // 🛠️ THE FIX: Wrap the view inside the reactive palette listener
         return ValueListenableBuilder<PaletteInstance>(
           valueListenable: ThemeManager.activePalette,
           builder: (context, palette, child) {
-            // Extract dynamic theme values directly from the active palette
             final Color paperBackground = palette.sandstoneCream;
             final Color gridLineColor =
                 palette.blueprintBlue.withValues(alpha: 0.12);
 
             return Scaffold(
-              backgroundColor: paperBackground, // Dynamic canvas update!
+              backgroundColor: paperBackground,
               body: Row(
                 children: [
-                  // Left Column Nav
                   TodoSidebar(
                     activeIndex: activeIndex,
                     onTabSelected: controller.changeTab,
                   ),
-
-                  // Right Content Viewport with Reactive Checkered Background
                   Expanded(
                     child: Stack(
                       children: [
-                        // The Full-Surface Checkered/Grid Canvas Layer
                         Positioned.fill(
                           child: AnimatedBaseCanvas(
                             gridColor: gridLineColor,
@@ -49,8 +49,6 @@ class TodoView extends StatelessWidget {
                             gridSize: 24.0,
                           ),
                         ),
-
-                        // Active Viewport UI Content Layer
                         Padding(
                           padding: const EdgeInsets.all(32.0),
                           child: _buildActiveTab(activeIndex),
@@ -70,13 +68,13 @@ class TodoView extends StatelessWidget {
   Widget _buildActiveTab(int index) {
     switch (index) {
       case 0:
-        return TabCalendar(controller: controller);
+        return TabCalendar(controller: controller, musicManager: musicManager);
       case 1:
         return TabTasks(controller: controller);
       case 2:
         return TabReminders(controller: controller);
       default:
-        return TabCalendar(controller: controller);
+        return TabCalendar(controller: controller, musicManager: musicManager);
     }
   }
 }

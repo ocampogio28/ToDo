@@ -9,17 +9,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  table_calendar: ^3.1.2 # For your dashboard calendar sync
-  desktop_window: ^0.4.0 # For your window resolution controls
+  table_calendar: ^3.1.2
+  desktop_window: ^0.4.0
   http: ^1.6.0
   wakelock_plus: ^1.6.1
   audioplayers: ^6.6.0
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-  msix: ^3.16.1 # Added here directly so you don't have to run pub add
+  msix: ^3.16.1
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -28,8 +30,8 @@ flutter:
     - assets/button.mp3
     - assets/delete.mp3
     - assets/add.mp3
+    - assets/music/
 
-# 🚀 STANDALONE WINDOWS INSTALLER CONFIGURATION
 msix_config:
   display_name: Desktop ToDo
   publisher_display_name: Gio Developer
